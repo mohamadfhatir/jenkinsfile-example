@@ -1,0 +1,37 @@
+pipeline {
+    agent { label 'jenkins-host'}
+	
+	environment {
+        GITHUB_REPO = "https://github.com/your_profile/your_repositories.git"
+        GIT_TOKEN = "your_token_from_jenkins_global_secrets"
+    }
+	
+    stages {
+        stage('Pulling Source Code') {
+            steps {
+                script {
+                    git credentialsId: "${GIT_TOKEN}", url: "${GITHUB_REPO}"
+                    sh "ls -lart ./*"
+                    sh "git branch -a"
+                    sh "git checkout master"
+                }
+            }
+        }
+        stage('Activate Virtual Environment & Install Dependencies') {
+            steps {
+                script {
+                    sh "python -m venv script1"
+                    sh "source script1/bin/activate"
+                    sh "script1/bin/pip install requirements.txt"
+                }
+            }
+        }
+        stage('Running Checker') {
+            steps {
+                script {
+                    sh "script1/bin/python databasechecker/script1.py"
+                }
+            }
+        }
+    }
+}
